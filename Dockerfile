@@ -13,5 +13,5 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Command to run the script
-CMD ["node", "script.js"]
+# build
+RUN npm run build

@@ -10,7 +10,7 @@ const appsV1Api = kc.makeApiClient(k8s.AppsV1Api)
 async function copySecretAndUpdateDeployment() {
 	try {
 		const now = new Date().toISOString()
-		const nowTimestamp = new Date().getTime()
+		const nowTimestamp = `${new Date().getTime()}`
 
 		const mongodbCertSecret = (await k8sApi.readNamespacedSecret('mongodb-cert-key-pair', 'kirakira-mongodb')).body
 		if (!mongodbCertSecret.data) {
@@ -20,6 +20,10 @@ async function copySecretAndUpdateDeployment() {
 		const ca = mongodbCertSecret.data?.['ca.crt']
 		const cert = mongodbCertSecret.data?.['tls.crt']
 		const key = mongodbCertSecret.data?.['tls.key']
+
+		const caBase64 = Buffer.from(ca).toString('base64')
+		const certBase64 = Buffer.from(cert).toString('base64')
+		const keyBase64 = Buffer.from(key).toString('base64')
 
 		const rosalesCertSecret = (await k8sApi.readNamespacedSecret('kirakira-rosales-mongodb-secret', 'kirakira-rosales')).body
 
@@ -61,21 +65,24 @@ async function copySecretAndUpdateDeployment() {
 			metadata: {
 				name: 'kirakira-rosales-mongodb-secret',
 				namespace: 'kirakira-rosales',
-				syncAtTimestamp: nowTimestamp,
+				annotations: {
+					syncAt: now,
+					syncAtTimestamp: nowTimestamp,
+				},
 			},
 			type: 'Opaque',
 			data: {
 				MONGODB_PROTOCOL: rosalesCertSecret.data.MONGODB_PROTOCOL,
 				MONGODB_CLUSTER_HOST: rosalesCertSecret.data.MONGODB_CLUSTER_HOST,
-				MONGODB_TLS_CA_BASE64: ca,
-				MONGODB_TLS_CERT_BASE64: cert,
-				MONGODB_TLS_KEY_BASE64: key,
+				MONGODB_TLS_CA_BASE64: caBase64,
+				MONGODB_TLS_CERT_BASE64: certBase64,
+				MONGODB_TLS_KEY_BASE64: keyBase64,
 				MONGODB_NAME: rosalesCertSecret.data.MONGODB_NAME,
 				MONGODB_USERNAME: rosalesCertSecret.data.MONGODB_USERNAME,
 				MONGODB_PASSWORD: rosalesCertSecret.data.MONGODB_PASSWORD,
 			},
 		}
-		await k8sApi.createNamespacedSecret('kirakira-rosales', newSecret)
+		await k8sApi.replaceNamespacedSecret(newSecret.metadata.name, newSecret.metadata.namespace, newSecret)
 
 		await appsV1Api.patchNamespacedDeployment(
 			'kirakira-rosales-deployment',
@@ -86,7 +93,7 @@ async function copySecretAndUpdateDeployment() {
 						metadata: {
 							annotations: {
 								'kubectl.kubernetes.io/restartedAt': now,
-								'kubectl.kubernetes.io/restartedAtTimestamp': nowTimestamp,
+								restartedAtTimestamp: nowTimestamp,
 							},
 						},
 					},
@@ -103,6 +110,7 @@ async function copySecretAndUpdateDeployment() {
 				},
 			},
 		)
+		console.info('Smile! Sweet! Sister! Sadistic! Surprise! Service! Sync Success!')
 	} catch (error) {
 		const emailBody = {
 			html: `The job failed with the following error:\n${error}`,

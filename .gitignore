@@ -129,5 +129,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# kirakira-batch build root
-kirakira-batch
+# ignore kirakira-batch build root
+kirakira-batch/
+
+# ignore local test files
+local/
