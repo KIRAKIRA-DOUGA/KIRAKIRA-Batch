@@ -18,7 +18,7 @@ docker buildx create --name mybuilder --use
 docker buildx inspect --bootstrap
 
 # 构建并推送多平台镜像到 Docker Hub
-# 请确保安装 docker 并且 docker 已经登录/连接了远程容器镜像存储库，这里使用 cfdxkk01/kirakira-batch
+# 请确保安装 docker 并且 docker 已经登录/连接了远程容器镜像存储库，这里使用 your-container-registry/kirakira-batch
 # 请替换 <tag> 为正确的版本号，例如：3.24.0
 #                                                                                                             ↓ 注意这里有个点「.」，复制语句的时候别落下
 docker buildx build --platform linux/amd64,linux/arm64 -t your-container-registry/kirakira-batch:<tag> --push .
