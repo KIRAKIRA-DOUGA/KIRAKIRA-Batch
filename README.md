@@ -23,7 +23,7 @@ docker buildx inspect --bootstrap
 #                                                                                                             ↓ 注意这里有个点「.」，复制语句的时候别落下
 docker buildx build --platform linux/amd64,linux/arm64 -t your-container-registry/kirakira-batch:<tag> --push .
 ```
-然后编写 Cronjob 声明文件如下：
+然后编写 Cronjob 声明文件如下：  
 sync-mongodb-secret.yaml
 ``` yaml
 apiVersion: batch/v1
