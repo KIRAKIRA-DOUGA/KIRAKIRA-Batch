@@ -50,5 +50,9 @@ spec:
 ```
 应用 Cronjob 声明文件
 ``` sh
+# 请视情况选择是否指定命名空间
 kubectl apply -f sync-mongodb-secret.yaml
 ```
+
+> [!IMPORTANT]\
+> 很多情况下，被 Cronjob 批处理脚本需要提供某些管理员 RBAC 权限才能正常运行。
