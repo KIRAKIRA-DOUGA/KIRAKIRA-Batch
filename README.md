@@ -55,4 +55,4 @@ kubectl apply -f sync-mongodb-secret.yaml
 ```
 
 > [!IMPORTANT]\
-> 很多情况下，被 Cronjob 批处理脚本需要提供某些管理员 RBAC 权限才能正常运行。
+> 很多情况下，该 Cronjob 批处理脚本需要提供某些 kubernetes 管理员 RBAC 权限才能正常运行。
